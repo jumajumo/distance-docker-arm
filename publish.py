@@ -35,29 +35,55 @@ GPIO.setmode(GPIO.BCM)
 GPIO.setup(pin_trigger, GPIO.OUT)
 GPIO.setup(pin_echo, GPIO.IN)
 
-try:
-    while True:
-        GPIO.output(pin_trigger, True)
-        time.sleep(0.00001)
-        GPIO.output(pin_trigger, False)
+def measure():
+    GPIO.output(pin_trigger, True)
+    time.sleep(0.00001)
+    GPIO.output(pin_trigger, False)
 
+    startTime = time.time()
+    stopTime = time.time()
+
+    while GPIO.input(pin_echo) == 0:
         startTime = time.time()
+
+    while GPIO.input(pin_echo) == 1:
         stopTime = time.time()
 
-        while GPIO.input(pin_echo) == 0:
-            startTime = time.time()
+    timeElapsed = stopTime - startTime
 
-        while GPIO.input(pin_echo) == 1:
-            stopTime = time.time()
+    # mit der Schallgeschwindigkeit (34300 cm/s) multiplizieren
+    # und durch 2 teilen, da hin und zurueck
+    distance = (timeElapsed * 34300) / 2
 
-        timeElapsed = stopTime - startTime
+    return distance
 
-        # mit der Schallgeschwindigkeit (34300 cm/s) multiplizieren
-        # und durch 2 teilen, da hin und zurueck
-        distance = (timeElapsed * 34300) / 2
+
+try:
+    while True:
+        value1 = measure()
+        time.sleep(0.2)
+        value2 = measure()
+        time.sleep(0.2)
+        value3 = measure()
+        time.sleep(0.2)
+        value4 = measure()
+        time.sleep(0.2)
+        value5 = measure()
+        time.sleep(0.2)
+        value6 = measure()
+        time.sleep(0.2)
+        value7 = measure()
+        time.sleep(0.2)
+        value8 = measure()
+        time.sleep(0.2)
+        value9 = measure()
+        time.sleep(0.2)
+        value10 = measure()
+
+        calculated = (value1+value2+value3+value4+value5+value6+value7+value8+value9+value10) / 10
 
         client.publish(thingTopic + "sys/state", "ONLINE", qos=2, retain=True)
-        client.publish(thingTopic + "distance",distance, qos=1, retain=False)
+        client.publish(thingTopic + "distance", calculated, qos=1, retain=False)
 
         time.sleep(refresh)
 
