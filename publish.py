@@ -2,8 +2,16 @@
 import paho.mqtt.client as mqtt
 import time
 import os
+import sys
 import datetime
 import RPi.GPIO as GPIO
+
+pid=str(os.getpid())
+pidfile = "publish.pid"
+
+if os.path.isfile(pidfile):
+    sys.exit()
+open(pidfile,"w").write(pid)
 
 thingid = os.getenv('thingid','distance')
 brokeraddr = os.getenv('brokeraddr','openhabian')
@@ -90,3 +98,4 @@ try:
 except:
     GPIO.cleanup()
     client.disconnect()
+    os.unlink(pidfile)
