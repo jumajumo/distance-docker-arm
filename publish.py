@@ -18,7 +18,7 @@ client = mqtt.Client(thingid)
 
 client.will_set(thingTopic + "sys/state", "OFFLINE", qos=1, retain=True)
 
-client.connect(brokeraddr, keepalive=600)
+client.connect(brokeraddr, keepalive=3600)
 
 client.loop_start()
 
@@ -61,6 +61,10 @@ def measure():
 
 try:
     while True:
+	GPIO.setmode(GPIO.BCM)
+	GPIO.setup(pin_trigger, GPIO.OUT)
+	GPIO.setup(pin_echo, GPIO.IN)
+
         value1 = measure()
         time.sleep(0.2)
         value2 = measure()
