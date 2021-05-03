@@ -61,9 +61,9 @@ def measure():
 
 try:
     while True:
-	GPIO.setmode(GPIO.BCM)
-	GPIO.setup(pin_trigger, GPIO.OUT)
-	GPIO.setup(pin_echo, GPIO.IN)
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(pin_trigger, GPIO.OUT)
+        GPIO.setup(pin_echo, GPIO.IN)
 
         value1 = measure()
         time.sleep(0.2)
@@ -95,3 +95,4 @@ try:
 except:
     GPIO.cleanup()
     client.disconnect()
+    client.loop_stop()
