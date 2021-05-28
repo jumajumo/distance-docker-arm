@@ -61,9 +61,11 @@ def measure():
 
 try:
     while True:
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setup(pin_trigger, GPIO.OUT)
-        GPIO.setup(pin_echo, GPIO.IN)
+#        GPIO.setmode(GPIO.BCM)
+#        GPIO.setup(pin_trigger, GPIO.OUT)
+#        GPIO.setup(pin_echo, GPIO.IN)
+
+        client.publish(thingTopic + "sys/logmsg", str(datetime.datetime.now()) + " start measure", qos=2, retain=True)
 
         value1 = measure()
         time.sleep(0.2)
@@ -85,14 +87,19 @@ try:
         time.sleep(0.2)
         value10 = measure()
 
+        client.publish(thingTopic + "sys/logmsg", str(datetime.datetime.now()) + " calculate distance", qos=2, retain=True)
         calculated = (value1+value2+value3+value4+value5+value6+value7+value8+value9+value10) / 10
 
+        client.publish(thingTopic + "sys/logmsg", str(datetime.datetime.now()) + " publish data", qos=2, retain=True)
         client.publish(thingTopic + "sys/state", "ONLINE", qos=2, retain=True)
         client.publish(thingTopic + "distance", calculated, qos=1, retain=False)
 
+        client.publish(thingTopic + "sys/logmsg", str(datetime.datetime.now()) + " going to sleep", qos=2, retain=True)
         time.sleep(refresh)
 
 except:
+    client.publish(thingTopic + "sys/logmsg", str(datetime.datetime.now()) + " exception", qos=2, retain=True)
+
     GPIO.cleanup()
     client.disconnect()
     client.loop_stop()
