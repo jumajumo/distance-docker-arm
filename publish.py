@@ -41,14 +41,19 @@ def measure():
     time.sleep(0.00001)
     GPIO.output(pin_trigger, False)
 
+    timeout = time.time() + 2
     startTime = time.time()
-    stopTime = time.time()
+    stopTime = startTime
 
     while GPIO.input(pin_echo) == 0:
         startTime = time.time()
+        if(startTime > timeout):
+            return 0
 
     while GPIO.input(pin_echo) == 1:
         stopTime = time.time()
+        if(stopTime > timeout):
+            return 0
 
     timeElapsed = stopTime - startTime
 
