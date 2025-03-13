@@ -14,10 +14,9 @@ pin_echo = int(os.getenv('pinecho', '24'))
 
 thingTopic = "jumajumo/" + thingid + "/"
 
-client = mqtt.Client(thingid)
+client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1, thingid)
 
 client.will_set(thingTopic + "sys/state", "OFFLINE", qos=1, retain=True)
-
 client.connect(brokeraddr, keepalive=3600)
 
 client.loop_start()
@@ -102,9 +101,20 @@ try:
         client.publish(thingTopic + "sys/logmsg", str(datetime.datetime.now()) + " going to sleep", qos=2, retain=True)
         time.sleep(refresh)
 
-except:
-    client.publish(thingTopic + "sys/logmsg", str(datetime.datetime.now()) + " exception", qos=2, retain=True)
+except Exception as e:
+    client.publish(thingTopic + "sys/logmsg", str(datetime.datetime.now()) + " exception: " + str(e), qos=2, retain=True)
 
+finally:
+    # Ensuring that we properly clean up the client and GPIO before exit
+    try:
+        if client.is_connected():
+            client.publish(thingTopic + "sys/state", "OFFLINE", qos=1, retain=True)
+            client.disconnect()
+    except Exception as e:
+        client.publish(thingTopic + "sys/logmsg", str(datetime.datetime.now()) + " disconnect exception: " + str(e), qos=2, retain=True)
+
+    # Proper cleanup of GPIO
     GPIO.cleanup()
-    client.disconnect()
+
+    # Make sure to stop the MQTT loop
     client.loop_stop()
